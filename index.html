@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Web Keren</title>
+  <title>My Personal Web</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -27,30 +27,51 @@
 
     p {
       font-size: 1.2rem;
-      max-width: 600px;
       text-align: center;
       animation: fadeIn 2s ease-in;
+      max-width: 600px;
     }
 
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
+    .btn-group {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 12px 24px;
       font-size: 1rem;
       border: none;
-      border-radius: 5px;
-      background-color: #00c9a7;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s;
+      border-radius: 8px;
+      text-decoration: none;
+      color: white;
+      background-color: #ff006e;
+      transition: background 0.3s;
+      text-align: center;
     }
 
-    button:hover {
-      background-color: #00a98f;
+    .btn:hover {
+      background-color: #d6005a;
+    }
+
+    button.toggle {
+      margin-top: 20px;
+      background-color: #00c9a7;
     }
 
     .dark-mode {
       background: linear-gradient(135deg, #ffffff, #e6e6e6);
       color: #111;
+    }
+
+    .dark-mode .btn {
+      background-color: #111;
+      color: white;
+    }
+
+    .dark-mode .btn:hover {
+      background-color: #333;
     }
 
     @keyframes slideDown {
@@ -65,18 +86,23 @@
   </style>
 </head>
 <body>
-  <h1>Halo, Dunia!</h1>
-  <p>Selamat datang di website super keren yang dibuat hanya dengan HTML, CSS, dan JavaScript!</p>
-  <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  <h1>Halo, brohh!</h1>
+  <p>Gimana website guah. Lu bisa cek profil media sosial gua di bawah ini.</p>
+
+  <div class="btn-group">
+    <a href="https://instagram.com/r_f3rr" target="_blank" class="btn">Instagram</a>
+    <a href="https://wa.me/+62 81226769432" target="_blank" class="btn">WhatsApp</a>
+    <a href="xdllmk@gmail.com" class="btn">Email Saya</a>
+  </div>
+
+  <button class="toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
 
   <script>
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
     }
 
-    console.log("Website siap digunakan!");
+    console.log("Halaman dengan link IG siap!");
   </script>
-</body>
-</html>
 </body>
 </html>
