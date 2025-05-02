@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Love Klik</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background-color: white;
+      color: #ff3366;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #ffe6ec;
+    }
+
+    #love-img {
+      margin-top: 30px;
+      width: 120px;
+      display: none;
+      animation: muncul 0.8s ease forwards;
+    }
+
+    @keyframes muncul {
+      from { opacity: 0; transform: scale(0.5); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Selamat Sore</h1>
+  <p>Semoga hari ini penuh dengan kebahagiaan ya.</p>
+  <button onclick="tampilkanLove()">Klik Aku!</button>
+  <img id="love-img" src="https://png.pngtree.com/png-vector/20240718/ourmid/pngtree-chalk-drawn-pink-heart-with-a-rough-texture-png-image_13124943.png" alt="Love" />
+
+  <script>
+    function tampilkanLove() {
+      const love = document.getElementById("love-img");
+      love.style.display = "block";
+      love.style.animation = "muncul 0.8s ease";
+    }
+  </script>
+</body>
+</html>
