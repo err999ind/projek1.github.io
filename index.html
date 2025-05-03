@@ -70,7 +70,47 @@
     </div>
   </div>
 
-  <script>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getDatabase, ref, push, get, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDAYUl0cRDMSMtFHtfbVw9UgwKYykatO98",
+      authDomain: "komen1-87850.firebaseapp.com",
+      databaseURL: "https://komen1-87850-default-rtdb.firebaseio.com",
+      projectId: "komen1-87850",
+      storageBucket: "komen1-87850.appspot.com",
+      messagingSenderId: "313845814360",
+      appId: "1:313845814360:web:0d91e3f9e6fe8e5d13e62d",
+      measurementId: "G-Q3ZPPKZQSD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const auth = getAuth();
+    let currentUID = "";
+
+    signInAnonymously(auth)
+      .then(() => {
+        console.log("User signed in anonymously.");
+      })
+      .catch((error) => {
+        console.error("Error signing in anonymously:", error);
+      });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUID = user.uid;
+        if (currentUID === "Qg9dYVLt9ggV99bzQAMs3rwXqRq2") {
+          tampilkanIP();
+        }
+        tampilkanKomentar();
+      }
+    });
+
+    // Game logic
     const dataSoal = [
       { pertanyaan: "Ibu kota Indonesia?", jawaban: "jakarta" },
       { pertanyaan: "Hewan berkaki delapan dan membuat jaring?", jawaban: "laba-laba" },
@@ -123,50 +163,75 @@
     function tampilkanLeaderboard() {
       const leaderboardRef = ref(database, 'leaderboard');
       get(leaderboardRef).then(snapshot => {
+        const leaderboardContainer = document.getElementById("daftarLeaderboard");
+        leaderboardContainer.innerHTML = "";
         if (snapshot.exists()) {
-          const leaderboard = Object.values(snapshot.val());
-          leaderboard.sort((a, b) => b.skor - a.skor);
-          const leaderboardContainer = document.getElementById("daftarLeaderboard");
-          leaderboardContainer.innerHTML = "<ol>";
-          leaderboard.forEach(entry => {
-            leaderboardContainer.innerHTML += `<li><strong>${entry.nama}</strong> - Skor: ${entry.skor}</li>`;
+          const data = Object.values(snapshot.val());
+          data.sort((a, b) => b.skor - a.skor);
+          data.forEach(item => {
+            const div = document.createElement("div");
+            div.innerHTML = `<strong>${item.nama}</strong> - Skor: ${item.skor}`;
+            leaderboardContainer.appendChild(div);
           });
-          leaderboardContainer.innerHTML += "</ol>";
-        } else {
-          console.log("Leaderboard kosong");
+        }
+      });
+    }
+
+    // Komentar
+    document.getElementById("formKomentar").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const nama = document.getElementById("nama").value.trim();
+      const isiKomentar = document.getElementById("isiKomentar").value.trim();
+      if (nama && isiKomentar) {
+        push(ref(database, "komentar"), {
+          nama: nama,
+          isi: isiKomentar,
+          waktu: new Date().toLocaleString()
+        });
+        document.getElementById("formKomentar").reset();
+      }
+    });
+
+    function tampilkanKomentar() {
+      const komentarRef = ref(database, "komentar");
+      onValue(komentarRef, snapshot => {
+        const daftar = document.getElementById("daftarKomentar");
+        daftar.innerHTML = "";
+        if (snapshot.exists()) {
+          Object.values(snapshot.val()).forEach(kom => {
+            const div = document.createElement("div");
+            div.innerHTML = `<strong>${kom.nama}</strong>: ${kom.isi}`;
+            daftar.appendChild(div);
+          });
+        }
+      });
+    }
+
+    function tampilkanIP() {
+      fetch("https://api.ipify.org?format=json")
+        .then(res => res.json())
+        .then(data => {
+          push(ref(database, "ips"), {
+            ip: data.ip,
+            waktu: new Date().toLocaleString()
+          });
+        });
+
+      const ipRef = ref(database, "ips");
+      onValue(ipRef, snapshot => {
+        const daftarIP = document.getElementById("daftarIP");
+        daftarIP.innerHTML = "<h3>Data IP (Admin Only)</h3>";
+        if (snapshot.exists()) {
+          Object.values(snapshot.val()).forEach(item => {
+            const div = document.createElement("div");
+            div.textContent = `${item.ip} - ${item.waktu}`;
+            daftarIP.appendChild(div);
+          });
         }
       });
     }
 
     tampilkanSoal();
-  </script>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDAYUl0cRDMSMtFHtfbVw9UgwKYykatO98",
-      authDomain: "komen1-87850.firebaseapp.com",
-      databaseURL: "https://komen1-87850-default-rtdb.firebaseio.com",
-      projectId: "komen1-87850",
-      storageBucket: "komen1-87850.appspot.com",
-      messagingSenderId: "313845814360",
-      appId: "1:313845814360:web:0d91e3f9e6fe8e5d13e62d",
-      measurementId: "G-Q3ZPPKZQSD"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const auth = getAuth();
-    signInAnonymously(auth)
-      .then(() => {
-        console.log("User signed in anonymously.");
-      })
-      .catch((error) => {
-        console.error("Error signing in anonymously:", error);
-      });
   </script>
 </body>
 </html>
