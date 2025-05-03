@@ -173,6 +173,8 @@
             div.innerHTML = `<strong>${item.nama}</strong> - Skor: ${item.skor}`;
             leaderboardContainer.appendChild(div);
           });
+        } else {
+          leaderboardContainer.innerHTML = "Belum ada data.";
         }
       });
     }
@@ -230,6 +232,10 @@
         }
       });
     }
+
+    // Ekspor fungsi ke global agar bisa dipakai onclick
+    window.cekJawaban = cekJawaban;
+    window.tampilkanLeaderboard = tampilkanLeaderboard;
 
     tampilkanSoal();
   </script>
