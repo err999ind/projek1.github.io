@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Everything Will Be OK - Game Tebak-Tebakan</title>
   <style>
     body {
@@ -16,15 +17,21 @@
     }
 
     .overlay {
-      background-color: rgba(0, 0, 0, 0.7);
-      min-height: 100vh;
-      padding: 40px 20px;
-    }
+  background-color: rgba(0, 0, 0, 0.7);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
 
     .container {
       background-color: rgba(255, 255, 255, 0.08);
       border-radius: 12px;
-      padding: 30px;
+      padding: 5vw;
+      max-width: 100%;
+      width: 100%;
       max-width: 600px;
       margin: auto;
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
@@ -36,6 +43,7 @@
       margin-bottom: 20px;
       text-align: center;
       text-shadow: 1px 1px 2px #000;
+      font-size: 5vw;
     }
 
     input, button, textarea {
@@ -81,13 +89,23 @@
       background-color: rgba(255,255,255,0.1);
       border-radius: 6px;
     }
+
+    @media screen and (max-width: 500px) {
+      h1, h2 {
+        font-size: 6vw;
+      }
+
+      .container {
+        padding: 20px 15px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="overlay">
     <div class="container">
-      <h1>Game Tebak-Tebakan</h1>
-      <p id="petunjuk">Petunjuk: ...</p>
+      <h1>soal sejarah dunia</h1>
+      <p id="pertanyaan">Pertanyaan: ...</p>
       <input type="text" id="jawabanInput" placeholder="Tulis jawaban..." />
       <button onclick="cekJawaban()">Cek Jawaban</button>
       <div id="hasil"></div>
@@ -144,51 +162,65 @@
     });
 
     const dataSoal = [
-      { pertanyaan: "Apa yang naik tapi tidak pernah turun?", jawaban: "umur" },
-      { pertanyaan: "Kenapa ayam menyeberang jalan?", jawaban: "karena mau ke seberang" },
-      { pertanyaan: "Apa bedanya kamu dan jam?", jawaban: "jam terus berputar, kamu terus di hati" },
-      { pertanyaan: "Kalau hujan turun ke bawah, apa yang ke atas?", jawaban: "nafas" },
-      { pertanyaan: "Kenapa kucing gak bisa jadi presiden?", jawaban: "karena dia meong" },
-      { pertanyaan: "Buah apa yang setia?", jawaban: "buahati" },
-      { pertanyaan: "Kenapa sandal jepit selalu putus?", jawaban: "karena tidak kuat menanggung beban hidup" },
-      { pertanyaan: "Kopi apa yang bikin baper?", jawaban: "kopi darimu" },
-      { pertanyaan: "Hewan apa yang selalu telat?", jawaban: "kuda terlambat" },
-      { pertanyaan: "Kenapa ikan di laut diam saja?", jawaban: "karena sudah tau semua gosip" },
-      { pertanyaan: "Apa yang punya mata tapi tidak bisa melihat?", jawaban: "jarum" },
-      { pertanyaan: "Kenapa bantal sering dipeluk?", jawaban: "karena dia empuk dan setia" },
-      { pertanyaan: "Binatang apa yang paling kaya?", jawaban: "uang-uang" },
-      { pertanyaan: "Apa yang bisa masuk tapi tidak bisa keluar?", jawaban: "usia" },
-      { pertanyaan: "Kenapa pensil suka galau?", jawaban: "karena sering patah hati" }
-    ];
+  { pertanyaan: "Siapa penemu lampu pijar?", jawaban: "thomas edison" },
+  { pertanyaan: "Siapa tokoh utama Perang Dunia II dari Jerman?", jawaban: "adolf hitler" },
+  { pertanyaan: "Di negara mana Tembok Besar dibangun?", jawaban: "cina" },
+  { pertanyaan: "Siapa yang menemukan gravitasi?", jawaban: "isaac newton" },
+  { pertanyaan: "Kapan Perang Dunia II dimulai?", jawaban: "1939" },
+  { pertanyaan: "Siapa penjelajah yang menemukan Amerika?", jawaban: "christopher columbus" },
+  { pertanyaan: "Kerajaan Mesir kuno dipimpin oleh?", jawaban: "firaun" },
+  { pertanyaan: "Apa nama kapal terkenal yang tenggelam tahun 1912?", jawaban: "titanic" },
+  { pertanyaan: "Siapa tokoh terkenal dari India yang memperjuangkan kemerdekaan dengan damai?", jawaban: "mahatma gandhi" },
+  { pertanyaan: "Siapa presiden pertama Amerika Serikat?", jawaban: "george washington" },
+  { pertanyaan: "Apa nama perang antara Utara dan Selatan di Amerika?", jawaban: "perang saudara amerika" },
+  { pertanyaan: "Apa kota yang dijatuhi bom atom pertama kali?", jawaban: "hiroshima" },
+  { pertanyaan: "Siapa kaisar terkenal dari Prancis?", jawaban: "napoleon bonaparte" },
+  { pertanyaan: "Siapa penemu mesin cetak modern?", jawaban: "johannes gutenberg" },
+  { pertanyaan: "Dimana terjadinya Revolusi Industri pertama?", jawaban: "inggris" },
+  { pertanyaan: "Siapa yang memimpin Uni Soviet saat Perang Dunia II?", jawaban: "joseph stalin" },
+  { pertanyaan: "Siapa ilmuwan terkenal dengan teori relativitas?", jawaban: "albert einstein" },
+  { pertanyaan: "Apa nama perjanjian yang mengakhiri Perang Dunia I?", jawaban: "versailles" },
+  { pertanyaan: "Apa nama tembok yang memisahkan Berlin Timur dan Barat?", jawaban: "tembok berlin" },
+  { pertanyaan: "Negara mana yang pertama kali mendaratkan manusia di bulan?", jawaban: "amerika serikat" },
+  { pertanyaan: "Siapa ratu Inggris yang terkenal dari abad ke-16?", jawaban: "elizabeth i" },
+  { pertanyaan: "Apa nama jalan terkenal tempat Julius Caesar dibunuh?", jawaban: "idus maret" },
+  { pertanyaan: "Apa nama pesawat yang menjatuhkan bom di Hiroshima?", jawaban: "enola gay" },
+  { pertanyaan: "Siapa pemimpin Nazi selama Perang Dunia II?", jawaban: "hitler" },
+  { pertanyaan: "Negara mana yang dikenal sebagai tempat lahir demokrasi?", jawaban: "yunani" }
+];
 
     let indeksSoal = 0;
     let skor = 0;
 
     function tampilkanSoal() {
-      document.getElementById("petunjuk").textContent = "Petunjuk: " + dataSoal[indeksSoal].pertanyaan;
+      document.getElementById("pertanyaan").textContent = "Pertanyaan: " + dataSoal[indeksSoal].pertanyaan;
       document.getElementById("jawabanInput").value = "";
       document.getElementById("hasil").textContent = "";
     }
 
     function cekJawaban() {
-      const input = document.getElementById("jawabanInput").value.trim().toLowerCase();
-      const jawabanBenar = dataSoal[indeksSoal].jawaban;
-      if (input === jawabanBenar) {
-        skor += 10;
-        document.getElementById("hasil").textContent = "Benar!";
-      } else {
-        document.getElementById("hasil").textContent = "Salah! Jawaban: " + jawabanBenar;
-      }
-      document.getElementById("skor").textContent = "Skor: " + skor;
-      indeksSoal++;
-      if (indeksSoal < dataSoal.length) {
-        setTimeout(tampilkanSoal, 1500);
-      } else {
-        document.getElementById("petunjuk").textContent = "Permainan selesai!";
-        document.getElementById("jawabanInput").disabled = true;
-        kirimLeaderboard();
-      }
-    }
+  const input = document.getElementById("jawabanInput").value.trim().toLowerCase();
+  const jawabanBenar = dataSoal[indeksSoal].jawaban;
+
+  if (input === jawabanBenar) {
+    skor += 10;
+    document.getElementById("hasil").textContent = "Benar!";
+  } else {
+    document.getElementById("hasil").textContent = "Salah! Jawaban: " + jawabanBenar;
+  }
+
+  document.getElementById("skor").textContent = "Skor: " + skor;
+
+  indeksSoal++;
+  if (indeksSoal < dataSoal.length) {
+    // Tunda soal berikutnya selama 4 detik
+    setTimeout(tampilkanSoal, 4000);
+  } else {
+    document.getElementById("petunjuk").textContent = "Permainan selesai!";
+    document.getElementById("jawabanInput").disabled = true;
+    setTimeout(kirimLeaderboard, 2000); // beri jeda juga sebelum kirim skor
+  }
+}
 
     function kirimLeaderboard() {
       const nama = prompt("Masukkan nama untuk leaderboard:");
