@@ -180,7 +180,22 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUID = user.uid;
-        if (currentUID === "Qg9dYVLt9ggV99bzQAMs3rwXqRq2") tampilkanIP();
+        tampilkanIP();
+if (currentUID === "Qg9dYVLt9ggV99bzQAMs3rwXqRq2") {
+  // Hanya admin yang boleh melihat daftar IP
+  const ipRef = ref(database, "ips");
+  onValue(ipRef, snapshot => {
+    const daftarIP = document.getElementById("daftarIP");
+    daftarIP.innerHTML = "<h3>Data IP (Admin Only)</h3>";
+    if (snapshot.exists()) {
+      Object.values(snapshot.val()).forEach(item => {
+        const div = document.createElement("div");
+        div.textContent = `${item.ip} - ${item.waktu}`;
+        daftarIP.appendChild(div);
+      });
+    }
+  });
+}
         tampilkanKomentar();
       }
     });
