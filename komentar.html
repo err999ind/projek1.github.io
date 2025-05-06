@@ -89,6 +89,26 @@
       font-size: 0.8em;
       margin-top: 4px;
     }
+
+    .back-button {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      padding: 12px 20px;
+      background-color: #6d4c41;
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      text-decoration: none;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #4e342e;
+    }
   </style>
 </head>
 <body>
@@ -100,6 +120,9 @@
       <button type="submit">Kirim Komentar</button>
     </form>
     <div id="daftarKomentar"></div>
+    
+    <!-- Tombol Kembali ke Beranda -->
+    <a href="index.html" class="back-button">Kembali ke Beranda</a>
   </div>
 
   <script type="module">
