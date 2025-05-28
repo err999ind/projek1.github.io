@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terminal Access // LEVEL 404</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+    body {
+      margin: 0;
+      background-color: #0f0f0f;
+      color: #33ff33;
+      font-family: 'Share Tech Mono', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .terminal {
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #33ff33;
+      padding: 30px;
+      width: 80%;
+      max-width: 800px;
+      box-shadow: 0 0 30px #33ff33;
+    }
+
+    .glitch {
+      animation: flicker 0.15s infinite alternate;
+    }
+
+    @keyframes flicker {
+      from { opacity: 1; }
+      to { opacity: 0.8; }
+    }
+
+    .typing {
+      border-right: .1em solid #33ff33;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 3s steps(30, end) forwards, blink .8s infinite;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    button {
+      background: none;
+      border: 1px solid #33ff33;
+      color: #33ff33;
+      font-family: inherit;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    button:hover {
+      background: #33ff33;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+    <div class="glitch">
+      <h1 class="typing">> SAYANGKUUUUUUU</h1>
+      <p style="margin-top:20px;">KEYYLLAAA</p>
+      <button onclick="alert('🛑 Katanya ga semuanya harus diseriusin, ini di becandain dikit langung ngambek gak tertolong ')">CLICK BABYY</button>
+    </div>
+  </div>
+</body>
+</html>
