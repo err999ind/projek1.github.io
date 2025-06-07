@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sad Lo-Fi Room</title>
+  <title>Sad Lo-Fi Room - Curhat</title>
   <style>
     * {
       margin: 0; padding: 0; box-sizing: border-box;
@@ -130,33 +130,36 @@
   </div>
 
   <audio id="lofi-audio" loop>
-  <source src="https://files.catbox.moe/66q0j6.mp3" type="audio/mpeg" />
-  Your browser does not support the audio element.
-</audio>
+    <source src="https://files.catbox.moe/z6yo7t.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
 
   <div id="audio-control">▶️ Play</div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script>
-    // Firebase
+    // Firebase Config sesuai lo
     const firebaseConfig = {
       apiKey: "AIzaSyDAYUl0cRDMSMtFHtfbVw9UgwKYykatO98",
-      authDomain: "sadroom-app.firebaseapp.com",
-      databaseURL: "https://sadroom-app-default-rtdb.firebaseio.com",
-      projectId: "sadroom-app",
-      storageBucket: "sadroom-app.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdef123456"
+      authDomain: "komen1-87850.firebaseapp.com",
+      databaseURL: "https://komen1-87850-default-rtdb.firebaseio.com",
+      projectId: "komen1-87850",
+      storageBucket: "komen1-87850.appspot.com",
+      messagingSenderId: "313845814360",
+      appId: "1:313845814360:web:0d91e3f9e6fe8e5d13e62d",
+      measurementId: "G-Q3ZPPKZQSD"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     document.getElementById("curhat-btn").addEventListener("click", () => {
       const isi = prompt("Tulis curhatanmu di sini, takkan ada yang menghakimi:");
       if (isi && isi.trim() !== "") {
-        db.ref("curhat").push(isi.trim());
-        alert("Curhatanmu telah disimpan. Dunia mungkin tak tahu, tapi Tuhan mendengar.");
+        db.ref("curhat").push(isi.trim())
+          .then(() => alert("Curhatanmu telah disimpan. Dunia mungkin tak tahu, tapi Tuhan mendengar."))
+          .catch((err) => alert("Gagal menyimpan curhat: " + err.message));
       }
     });
 
