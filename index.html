@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>KEYLLA VIRGINA — Catatan Keuangan</title>
+<style>
+:root{
+  --bg:#fff0f7;--card:#ffe3f2;--accent:#ff6bd6;--muted:#b46ba1;--danger:#ff3366;
+  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+}
+html,body{margin:0;height:100%;background:linear-gradient(180deg,#ffb6f0,#ffd6f9,#fff0f7);color:#4a0044}
+.hidden{display:none}
+#pinScreen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+background:linear-gradient(180deg,#ff94dc,#ffd6f9);z-index:9999}
+#pinBox{background:#fff0f7;padding:20px;border-radius:12px;text-align:center;
+box-shadow:0 6px 20px rgba(0,0,0,0.15)}
+#pinBox input{font-size:20px;letter-spacing:8px;text-align:center;padding:10px;width:140px;
+border:1px solid #ff7ac6;border-radius:8px;margin-bottom:10px}
+#pinBox button{padding:8px 14px;border:none;background:#ff6bd6;color:#fff;border-radius:8px;cursor:pointer}
+#pinError{color:var(--danger);font-size:13px;height:16px;margin-top:6px}
+
+.container{max-width:980px;margin:18px auto;padding:14px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.title{font-family:monospace;font-size:20px;letter-spacing:1px;color:#ff2fb0;text-shadow:0 0 6px rgba(255,0,170,0.5)}
+.sub{color:var(--muted);font-size:12px}
+.card{background:rgba(255,255,255,0.7);padding:12px;border-radius:10px;margin-top:12px;
+      box-shadow:0 8px 20px rgba(255,0,200,0.2);border:1px solid rgba(255,0,180,0.2)}
+.row{display:flex;gap:8px;align-items:center}
+input,select,button{padding:9px;border-radius:8px;border:1px solid rgba(255,0,180,0.3);
+  background:transparent;color:inherit;font-size:14px}
+button{cursor:pointer;background:#ffb3e6;border:1px solid #ff7ac6;color:#4a0044}
+.table{width:100%;border-collapse:collapse;margin-top:12px}
+.table th{font-size:13px;text-align:left;padding:8px;color:var(--muted);border-bottom:1px dashed rgba(255,0,180,0.3)}
+.table td{padding:10px;border-bottom:1px dashed rgba(255,0,180,0.15);font-size:14px}
+.badge-income{color:#00b894}
+.badge-expense{color:var(--danger)}
+.totals{font-weight:700;background:rgba(255,255,255,0.4);padding:10px}
+.small{font-size:12px;color:var(--muted)}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;right:12px;bottom:12px;background:rgba(255,192,230,0.9);
+  border:1px dashed #ff6bd6;padding:8px 12px;color:#4a0044;font-family:monospace;border-radius:6px;z-index:9999}
+@keyframes flicker{0%{opacity:1}50%{opacity:0.86;transform:skewX(-0.4deg)}100%{opacity:1}}
+.title{animation:flicker 3s infinite}
+footer{margin-top:12px;color:var(--muted);font-size:12px}
+.mobile-full{width:100%}
+@media(min-width:640px){.input-inline{flex:1}}
+</style>
+</head>
+<body>
+
+<!-- PIN Screen -->
+<div id="pinScreen">
+  <div id="pinBox">
+    <h2>🔒 MASUKAN PIN</h2>
+    <input type="password" id="pinInput" maxlength="6" placeholder="******" inputmode="numeric" />
+    <br>
+    <button id="pinBtn">BUKA</button>
+    <div id="pinError"></div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app" class="hidden">
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">Catatan Keuangan🎀</div>
+      <div class="sub">KEYLLA VIRGINA </div>
+    </div>
+    <div class="small">Luangkan waktumu untuk mencatat</div>
+  </div>
+
+  <div class="card" id="formCard">
+    <div class="row">
+      <select id="kind" style="width:110px">
+        <option value="income">Pemasukan</option>
+        <option value="expense">Pengeluaran</option>
+      </select>
+      <input id="amount" type="number" step="0.01" min="0" placeholder="Jumlah" class="input-inline" />
+      <input id="date" type="date" />
+      <input id="desc" type="text" placeholder="Deskripsi (opsional)" class="input-inline" />
+      <button id="addBtn">Tambahkan</button>
+    </div>
+    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="controls">
+        <button id="exportBtn">Export FILE</button>
+        <button id="importBtn">Import FILE</button>
+        <button id="clearBtn">Hapus semua log</button>
+      </div>
+      <div class="small">
+        <label><input type="checkbox" id="npcToggle"> mode offline
+(data tidak tersimpan)</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="tableCard">
+    <table class="table" id="entriesTable">
+      <thead><tr><th>Tanggal</th><th>Tipe</th><th>Deskripsi</th><th style="text-align:right">Jumlah</th><th>Edit</th></tr></thead>
+      <tbody></tbody>
+      <tfoot><tr class="totals"><td colspan="3">Total</td><td id="totalAmount">0.00</td><td></td></tr></tfoot>
+    </table>
+  </div>
+
+  <footer>Semangat bikin catatannya sayang</footer>
+</div>
+
+<input type="file" id="fileInput" accept=".csv" style="display:none" />
+</div>
+
+<script>
+/* ------------- Config & utilities ------------- */
+const PIN="160108"; // PIN default
+const SKEY="glitch_money_entries_v1";
+let NPC_MODE=false;
+
+const pinScreen=document.getElementById("pinScreen");
+const app=document.getElementById("app");
+const pinInput=document.getElementById("pinInput");
+const pinBtn=document.getElementById("pinBtn");
+const pinError=document.getElementById("pinError");
+
+function toast(msg,ttl=2200){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{ try{ t.remove() }catch(e){} },ttl + Math.random()*800);
+}
+
+function nowISO(d=new Date()){ return d.toISOString().slice(0,10) }
+function fmtCurrency(v){ return Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7) }
+
+function loadEntries(){
+  try{
+    const raw=localStorage.getItem(SKEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed)) return [];
+    return parsed;
+  }catch(e){
+    // corrupted data
+    console.warn("loadEntries error",e);
+    return [];
+  }
+}
+function saveEntries(list){
+  if(NPC_MODE){
+    // in NPC/offline mode we DO NOT persist to localStorage
+    toast("[NPC] mode aktif — perubahan tidak disimpan");
+    return;
+  }
+  try{
+    localStorage.setItem(SKEY,JSON.stringify(list));
+  }catch(e){
+    console.warn("saveEntries error",e);
+    toast("Gagal menyimpan: storage penuh?");
+  }
+}
+
+/* ------------- DOM refs ------------- */
+const tbody=document.querySelector("#entriesTable tbody");
+const totalEl=document.getElementById("totalAmount");
+const addBtn=document.getElementById("addBtn");
+const exportBtn=document.getElementById("exportBtn");
+const importBtn=document.getElementById("importBtn");
+const clearBtn=document.getElementById("clearBtn");
+const fileInput=document.getElementById("fileInput");
+const npcToggle=document.getElementById("npcToggle");
+
+/* ------------- Render & handlers ------------- */
+function render(){
+  const list=loadEntries().slice(); // copy
+  tbody.innerHTML="";
+  // sort by date desc, fallback to id
+  list.sort((a,b)=>{
+    if(a.date === b.date) return (b.id||"").localeCompare(a.id||"");
+    return (b.date||"").localeCompare(a.date||"");
+  });
+  let total=0;
+  list.forEach(it=>{
+    const tr=document.createElement("tr");
+    const kindBadge = it.kind==="income"
+      ? `<span class="badge-income">Pemasukan</span>`
+      : `<span class="badge-expense">Pengeluaran</span>`;
+    const descSafe = (it.description||"").toString().replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    tr.innerHTML = `<td>${it.date||nowISO()}</td>
+      <td>${kindBadge}</td>
+      <td>${descSafe.slice(0,160)}</td>
+      <td style="text-align:right">${fmtCurrency(it.amount)}</td>
+      <td>
+        <button data-id="${it.id}" class="editBtn">✏️</button>
+        <button data-id="${it.id}" class="delBtn">🗑️</button>
+      </td>`;
+    tbody.appendChild(tr);
+    total += (it.kind==="income"?1:-1) * Number(it.amount || 0);
+  });
+  totalEl.textContent = fmtCurrency(total);
+  attachHandlers();
+}
+
+function attachHandlers(){
+  document.querySelectorAll(".delBtn").forEach(b=>{
+    b.onclick = () => {
+      const id=b.dataset.id;
+      if(!confirm("Yakin hapus?")) return;
+      const l = loadEntries().filter(x=>x.id!==id);
+      saveEntries(l);
+      render();
+      toast("deleted ✔");
+    };
+  });
+  document.querySelectorAll(".editBtn").forEach(b=>{
+    b.onclick = () => {
+      const id=b.dataset.id;
+      const list=loadEntries();
+      const it=list.find(x=>x.id===id);
+      if(!it) { toast("Item tidak ditemukan"); return; }
+      const newDesc = prompt("Ubah deskripsi:", it.description||"");
+      if(newDesc===null) return; // cancel
+      const newAmtRaw = prompt("Ubah jumlah (angka):", String(it.amount));
+      if(newAmtRaw===null) return;
+      const newAmt = parseFloat(newAmtRaw);
+      if(Number.isNaN(newAmt) || newAmt < 0){ toast("Jumlah tidak valid"); return; }
+      it.description = newDesc;
+      it.amount = newAmt;
+      saveEntries(list);
+      render();
+      toast("edited ✔");
+    };
+  });
+}
+
+/* ------------- Add / Export / Import / Clear ------------- */
+addBtn.onclick = () => {
+  const kind = document.getElementById("kind").value;
+  const amountRaw = document.getElementById("amount").value;
+  const amount = parseFloat(amountRaw);
+  const date = document.getElementById("date").value || nowISO();
+  const desc = document.getElementById("desc").value;
+  if(isNaN(amount) || amount <= 0){ toast("Masukin nominal yang valid ( > 0 )"); return; }
+  const list = loadEntries();
+  list.push({ id: uid(), kind, amount: Number(amount), description: desc||"", date });
+  saveEntries(list);
+  document.getElementById("amount").value = "";
+  document.getElementById("desc").value = "";
+  render();
+  toast("added ✔ bzzzt");
+};
+
+exportBtn.onclick = () => {
+  const list = loadEntries();
+  if(!list.length){ toast("Tidak ada data untuk diexport"); return; }
+  const header = ["id","kind","amount","description","date"];
+  const rows = [header, ...list.map(r=>[r.id,r.kind,r.amount,r.description||"",r.date])];
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv],{type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "glitch-money.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast("CSV exported ✔");
+};
+
+importBtn.onclick = () => fileInput.click();
+
+fileInput.onchange = async e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  const txt = await f.text();
+  const lines = txt.split(/\r?\n/).filter(Boolean);
+  if(!lines.length) { toast("File kosong"); fileInput.value=""; return; }
+  // simple CSV parse (expects header)
+  const parsed = lines.slice(1).map(l=>{
+    // match fields that can be "quoted, with "" escapes"
+    const cols = l.match(/("([^"]|"")*"|[^,]+)/g) || [];
+    const clean = cols.map(c=>c.replace(/^"|"$/g,"").replace(/""/g,'"'));
+    return {
+      id: clean[0] || uid(),
+      kind: (clean[1]||"expense").trim(),
+      amount: Number(parseFloat(clean[2]||0) || 0),
+      description: clean[3] || "",
+      date: clean[4] || nowISO()
+    };
+  }).filter(r=>r && !Number.isNaN(r.amount));
+  const list = loadEntries().concat(parsed);
+  saveEntries(list);
+  render();
+  toast("Import done — kawaii chaos merged");
+  fileInput.value = "";
+};
+
+clearBtn.onclick = () => {
+  if(!confirm("Clear all data?")) return;
+  if(!NPC_MODE) localStorage.removeItem(SKEY);
+  render();
+  toast("all cleared");
+};
+
+/* ------------- PIN logic ------------- */
+function unlock(){
+  if(pinInput.value === PIN){
+    pinScreen.style.display = "none";
+    app.classList.remove("hidden");
+    pinInput.value = "";
+    pinError.textContent = "";
+  }else{
+    pinError.textContent = "❌ PIN salah";
+    pinInput.value = "";
+    pinInput.focus();
+  }
+}
+pinBtn.onclick = unlock;
+pinInput.addEventListener("keypress", e => { if(e.key === "Enter") unlock(); });
+
+/* ------------- NPC toggle ------------- */
+npcToggle.onchange = e => {
+  NPC_MODE = e.target.checked;
+  if(NPC_MODE) toast("Mode on — data tidak akan disimpan");
+  else toast("Mode offline mati — penyimpanan aktif");
+};
+</script>
+
+</body>
+</html>
