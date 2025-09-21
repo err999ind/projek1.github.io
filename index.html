@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GLITCH PLAYGROUND — sasuga ripki-sama</title>
+<style>
+  :root{
+    --bg:#0b0f14;
+    --neon:#7fffd4;
+    --accent:#ff4d6d;
+    --muted:#9aa6b2;
+    --glass: rgba(255,255,255,0.06);
+  }
+  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{
+    background: radial-gradient(1200px 600px at 10% 20%, rgba(15,20,30,0.6), transparent),
+                radial-gradient(900px 500px at 90% 80%, rgba(40,5,20,0.3), transparent),
+                var(--bg);
+    color:#e6eef6;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  /* Floating VHS glitch bars */
+  .glitch-bars{
+    position:fixed;inset:0;pointer-events:none;mix-blend-mode:screen;
+    background-image: linear-gradient(90deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 4px);
+    opacity:0.6; animation: bars 8s linear infinite;
+  }
+  @keyframes bars{ 0%{transform:translateY(-5%)}50%{transform:translateY(3%)}100%{transform:translateY(-5%)} }
+
+  /* Main layout */
+  .container{position:relative;z-index:10;display:grid;grid-template-columns: 1fr 420px;gap:22px;padding:28px;height:100vh;box-sizing:border-box;}
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:12px;padding:18px;backdrop-filter: blur(6px);
+    box-shadow: 0 6px 30px rgba(2,6,12,0.6);
+  }
+
+  header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .brand{font-weight:800;font-size:18px;color:var(--neon);letter-spacing:1px}
+  .sub{color:var(--muted);font-size:12px}
+
+  /* Left big playground */
+  .play-area{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:calc(100vh - 84px);overflow:auto}
+  .visual{
+    height:320px;border-radius:10px;position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;background:
+    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px dashed rgba(255,255,255,0.03);
+  }
+  .neon-text{font-size:42px;font-weight:900;mix-blend-mode:screen;text-transform:uppercase}
+  .neon-text .g{color:var(--accent);text-shadow:0 0 18px rgba(255,77,109,0.24)}
+  .glitch{position:absolute;inset:0;pointer-events:none}
+
+  /* Fake terminal */
+  .terminal{
+    background:linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.25));
+    border-radius:8px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px;color:#bfe9d3;
+    max-height:180px;overflow:auto;border:1px solid rgba(127,255,212,0.04);
+  }
+  .terminal .line{white-space:pre-wrap}
+
+  /* Right column controls */
+  .controls{display:flex;flex-direction:column;gap:12px;height:calc(100vh - 84px);overflow:auto;padding-right:6px}
+  .btn{display:inline-block;padding:10px 14px;border-radius:8px;background:var(--neon);color:#001;border:none;font-weight:700;cursor:pointer}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  .row{display:flex;gap:8px;align-items:center}
+  label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+
+  input[type="range"]{width:100%}
+  .small{font-size:13px;padding:8px 10px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+
+  /* Ending overlay */
+  .ending{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(2,6,12,0.92), rgba(2,6,12,0.94));
+    z-index:9999;backdrop-filter: blur(6px);opacity:0;visibility:hidden;transition:all .35s;
+    flex-direction:column;gap:12px;padding:24px;text-align:center;
+  }
+  .ending.show{opacity:1;visibility:visible}
+  .ending h1{font-size:34px;margin:0}
+  .credit{font-size:13px;color:var(--muted)}
+
+  /* little floating widgets */
+  .chip{position:absolute;right:18px;top:18px;padding:8px 12px;border-radius:8px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.04);font-size:13px}
+  .draggable{cursor:grab}
+  .glow{filter:drop-shadow(0 8px 38px rgba(127,255,212,0.06))}
+
+  /* responsive */
+  @media(max-width:920px){
+    .container{grid-template-columns:1fr; padding:16px}
+    .visual{height:260px}
+  }
+</style>
+</head>
+<body>
+  <div class="glitch-bars" aria-hidden="true"></div>
+
+  <div class="container">
+    <div class="card play-area">
+      <header>
+        <div>
+          <div class="brand">GLITCH PLAYGROUND</div>
+          <div class="sub">chaotic demo · buat lucu-lucuan — sasuga ripki-sama</div>
+        </div>
+        <div style="margin-left:auto" class="sub">iPhone-friendly · single file</div>
+      </header>
+
+      <div class="visual" id="visual">
+        <div class="neon-text" id="neon">GLIT<span class="g">CH</span> ROOM</div>
+        <canvas class="glitch" id="glitchCanvas"></canvas>
+        <div class="chip draggable" id="statusChip">status: idle</div>
+      </div>
+
+      <div class="terminal card" id="terminal" aria-live="polite">
+        <div class="line">> system booting... welcome, ripki.</div>
+        <div class="line">> tip: tekan tombol "glitch" buat ngerusak estetika.</div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn" id="glitchBtn">GLITCH</button>
+        <button class="btn ghost" id="calmBtn">CALM</button>
+        <button class="btn ghost" id="npcBtn">NPC MODE</button>
+        <div style="margin-left:auto;color:var(--muted);font-size:13px">press <strong>T</strong> for toxic surprise</div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
+        <input id="textInput" class="small" placeholder="Tulis pesan glitch — enter untuk kirim" />
+        <button class="btn ghost" id="sendBtn">Kirim</button>
+      </div>
+
+    </div>
+
+    <aside class="card controls">
+      <div>
+        <label>Lo-fi audio (ganti URL kalau mau)</label>
+        <input id="audioUrl" class="small" value="https://cdn.jsdelivr.net/gh/anars/blank-audio@master/10-seconds-of-silence.mp3" />
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="playAudio">Play</button>
+          <button class="btn ghost" id="pauseAudio">Pause</button>
+          <button class="btn ghost" id="stopAudio">Stop</button>
+        </div>
+      </div>
+
+      <div>
+        <label>Glitch intensity</label>
+        <input id="glitchRange" type="range" min="0" max="100" value="42" />
+      </div>
+
+      <div>
+        <label>Visuals</label>
+        <div class="row">
+          <button class="btn" id="vhs">VHS</button>
+          <button class="btn ghost" id="shake">SHAKE</button>
+          <button class="btn ghost" id="invert">INVERT</button>
+        </div>
+      </div>
+
+      <div>
+        <label>Secret stuff</label>
+        <div class="row">
+          <button class="btn ghost" id="endIt">ENDING</button>
+          <button class="btn" id="creditBtn">CREDIT</button>
+        </div>
+        <div style="margin-top:8px;color:var(--muted);font-size:13px">Hint: ketuk chip di pojok kanan visual buat easter egg.</div>
+      </div>
+
+      <div style="margin-top:auto">
+        <label>Console output</label>
+        <div id="logBox" class="small" style="height:120px;overflow:auto;background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="ending" id="ending">
+    <h1>THE ROOM FADES — happy ending?</h1>
+    <div class="credit">sfx by: your heart · code by: chaotic bot</div>
+    <div style="margin-top:12px">
+      <button class="btn" id="restart">Restart</button>
+      <button class="btn ghost" id="closeEnd">Close</button>
+    </div>
+  </div>
+
+<script>
+/* ---------- Utilities ---------- */
+const el = (id)=>document.getElementById(id);
+const log = (s)=>{ const lb=el('logBox'); lb.innerHTML += s.replace(/</g,'&lt;') + '<br>'; lb.scrollTop = lb.scrollHeight; };
+const term = (s)=>{ const t=el('terminal'); t.innerHTML += '<div class="line">'+s.replace(/</g,'&lt;')+'</div>'; t.scrollTop = t.scrollHeight; };
+
+/* ---------- Audio ---------- */
+let audio = new Audio();
+audio.loop = true;
+el('playAudio').onclick = ()=>{
+  audio.src = el('audioUrl').value || '';
+  audio.volume = 0.45;
+  audio.play().catch(e=>log('audio blocked: tap to allow'));
+  term('> audio play ▶️ ' + audio.src);
+  el('statusChip').innerText = 'status: music playing';
+}
+el('pauseAudio').onclick = ()=>{ audio.pause(); term('> audio paused'); el('statusChip').innerText='status: paused'; }
+el('stopAudio').onclick = ()=>{ audio.pause(); audio.currentTime=0; term('> audio stopped'); el('statusChip').innerText='status: idle'; }
+
+/* ---------- Visual glitch canvas ---------- */
+const canvas = el('glitchCanvas');
+const visual = el('visual');
+function sizeCanvas(){ canvas.width = visual.clientWidth; canvas.height = visual.clientHeight; }
+window.addEventListener('resize', sizeCanvas);
+sizeCanvas();
+const ctx = canvas.getContext('2d');
+
+let glitchIntensity = 0.42;
+el('glitchRange').addEventListener('input', (e)=>{ glitchIntensity = e.target.value/100; term('> glitch intensity '+e.target.value); });
+
+function drawGlitch(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // draw shifting bars and RGB offsets
+  const w = canvas.width, h = canvas.height;
+  const bands = 6 + Math.floor(glitchIntensity*12);
+  for(let i=0;i<bands;i++){
+    const y = Math.floor(Math.random()*h);
+    const hh = Math.max(2, Math.floor((Math.random()*0.2 + 0.02)*h));
+    ctx.fillStyle = 'rgba(255,255,255,'+ (Math.random()*0.03*glitchIntensity) +')';
+    ctx.fillRect(0,y,w,hh);
+    // rgb slice
+    const sx = Math.random()*w;
+    ctx.fillStyle = 'rgba(255,0,80,' + (0.02*glitchIntensity) +')';
+    ctx.fillRect(sx, y, Math.random()*120 + 20, hh*1.2);
+  }
+  // scanline noise
+  for(let i=0;i<canvas.height;i+=4){
+    ctx.fillStyle='rgba(0,0,0,'+(0.02*(1-glitchIntensity))+')';
+    ctx.fillRect(0,i,canvas.width,1);
+  }
+}
+let glitchActive = false, glitchTicker = null;
+function startGlitch(){
+  if(glitchActive) return;
+  glitchActive=true;
+  el('visual').classList.add('glow');
+  term('> glitch engaged');
+  el('statusChip').innerText = 'status: GLITCHING';
+  glitchTicker = setInterval(drawGlitch, 120 - Math.min(100, glitchIntensity*90));
+}
+function stopGlitch(){
+  glitchActive=false;
+  clearInterval(glitchTicker);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  el('visual').classList.remove('glow');
+  term('> glitch stopped');
+  el('statusChip').innerText = 'status: idle';
+}
+
+/* ---------- Buttons ---------- */
+el('glitchBtn').onclick = ()=>{ startGlitch(); log('glitch btn pressed'); }
+el('calmBtn').onclick = ()=>{ stopGlitch(); audio.volume = Math.max(0.1,audio.volume*0.7); term('> calming down...'); }
+el('vhs').onclick = ()=>{ visual.style.filter = 'contrast(1.1) saturate(1.05)'; term('> VHS filter'); }
+el('shake').onclick = ()=>{ visual.animate([{transform:'translateX(0)'},{transform:'translateX(6px)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:420,iterations:2}); term('> SHAKE'); }
+el('invert').onclick = ()=>{ document.body.style.filter = document.body.style.filter ? '' : 'invert(0.98) hue-rotate(180deg)'; term('> invert toggle'); }
+
+/* ---------- Text input ---------- */
+el('sendBtn').onclick = sendText;
+el('textInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendText(); });
+function sendText(){
+  const v = el('textInput').value.trim();
+  if(!v) return;
+  term('> <you> ' + v);
+  el('textInput').value='';
+  // playful responses
+  if(/glitch|rusak|ngaco/i.test(v)){
+    startGlitch();
+    term('> ai: error 0xGL1TCH');
+  } else if(/calm|tenang|stop/i.test(v)){
+    stopGlitch();
+    term('> ai: ok fine, breathing');
+  } else {
+    term('> ai: lol what is "'+v+'"');
+  }
+}
+
+/* ---------- NPC Mode (special) ---------- */
+let npc = false;
+el('npcBtn').onclick = ()=>{
+  npc = !npc;
+  el('npcBtn').innerText = npc ? 'NPC MODE ✓' : 'NPC MODE';
+  term('> npc mode ' + (npc ? 'activated' : 'deactivated'));
+  if(npc){
+    // periodic silly messages
+    window.npcInterval = setInterval(()=>{ term('> npc: glhf bro'); }, 7000);
+  } else {
+    clearInterval(window.npcInterval);
+  }
+}
+
+/* ---------- Ending overlay ---------- */
+el('endIt').onclick = ()=>{ el('ending').classList.add('show'); term('> ending sequence'); audio.pause(); }
+el('closeEnd').onclick = ()=>{ el('ending').classList.remove('show'); term('> closed ending'); }
+el('restart').onclick = ()=>{ el('ending').classList.remove('show'); location.reload(); }
+
+/* ---------- Chip easter egg draggable ---------- */
+const chip = el('statusChip');
+chip.addEventListener('click', ()=>{ alert('EASTER EGG: Sasuga ripki-sama 👑'); term('> easter egg opened'); });
+let dragging=false, dx=0, dy=0;
+chip.addEventListener('pointerdown', (e)=>{ dragging=true; dx = e.clientX - chip.offsetLeft; dy = e.clientY - chip.offsetTop; chip.setPointerCapture(e.pointerId); chip.style.cursor='grabbing'; });
+window.addEventListener('pointermove', (e)=>{ if(!dragging) return; chip.style.left = (e.clientX - dx) + 'px'; chip.style.top = (e.clientY - dy) + 'px'; chip.style.position='absolute'; chip.style.zIndex=99; });
+window.addEventListener('pointerup', (e)=>{ if(dragging){ dragging=false; chip.style.cursor='grab'; term('> chip moved'); } });
+
+/* ---------- Keyboard surprises ---------- */
+window.addEventListener('keydown',(e)=>{
+  if(e.key.toLowerCase()==='t'){ // toxic surprise
+    const original = el('neon').innerText;
+    el('neon').innerText = 'TOXIC MODE';
+    startGlitch();
+    term('> toxic surprise activated');
+    setTimeout(()=>{ el('neon').innerText = original; stopGlitch(); term('> toxic surprise ended'); }, 3000);
+  }
+  if(e.key.toLowerCase()==='g'){ startGlitch(); }
+});
+
+/* ---------- Tiny aesthetic heartbeat ---------- */
+let hue = 0;
+setInterval(()=>{ hue = (hue+0.4) % 360; document.documentElement.style.setProperty('--neon', `hsl(${hue} 90% 62%)`); }, 120);
+
+/* ---------- Init logs ---------- */
+term('> ready. have fun, ripki.');
+log('page ready • single-file • open-source-ish (not really)');
+
+/* ---------- Accessibility: tap to enable audio on iOS ----------
+   iOS/Safari sometimes blocks autoplay — user must tap.
+   We added play button; if blocked, instruct user via terminal.
+*/
+</script>
+</body>
+</html>
