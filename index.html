@@ -292,7 +292,7 @@ fileInput.onchange = async e => {
   const list = loadEntries().concat(parsed);
   saveEntries(list);
   render();
-  toast("Import done — kawaii chaos merged");
+  toast("Import done");
   fileInput.value = "";
 };
 
