@@ -644,7 +644,7 @@ function exportCSV(){
   const blob = new Blob([csv], {type:"text/csv"});
   const a = document.createElement("a"); 
   a.href = URL.createObjectURL(blob); 
-  a.download = "glitch-data.csv"; 
+  a.download = "Keylla-Catatan.csv"; 
   document.body.appendChild(a); 
   a.click(); 
   a.remove();
