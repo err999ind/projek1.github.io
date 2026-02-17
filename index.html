@@ -139,9 +139,11 @@ input{
 <audio id="adzanAudio" src="https://cdn.islamic.network/audio/adhan/adhan.mp3"></audio>
 
 <script>
-// ====== KALENDER 3 MODE ======
 const daysContainer=document.getElementById("days");
 let selectedDay=null;
+let countdownInterval=null;
+let maghribTime=null;
+let notified=false;
 
 for(let i=1;i<=30;i++){
   let div=document.createElement("div");
@@ -152,50 +154,81 @@ for(let i=1;i<=30;i++){
   if(status==="puasa") div.classList.add("puasa");
   if(status==="tidak") div.classList.add("tidak");
 
-  div.onclick=function(){
-    if(!div.classList.contains("puasa") && !div.classList.contains("tidak")){
-      div.classList.add("puasa");
-      localStorage.setItem("status"+i,"puasa");
-    }else if(div.classList.contains("puasa")){
-      div.classList.remove("puasa");
-      div.classList.add("tidak");
-      localStorage.setItem("status"+i,"tidak");
-    }else{
-      div.classList.remove("tidak");
-      localStorage.removeItem("status"+i);
-    }
-  }
+  let tapCount=0;
+  let tapTimer=null;
 
-  div.ondblclick=function(){
-    selectedDay=i;
-    openModal(i);
-  }
+  div.addEventListener("click",function(){
+
+    tapCount++;
+
+    if(tapCount===1){
+      tapTimer=setTimeout(()=>{
+        toggleStatus(i,div);
+        tapCount=0;
+      },300);
+    }
+
+    if(tapCount===2){
+      clearTimeout(tapTimer);
+      tapTimer=setTimeout(()=>{
+        toggleStatus(i,div);
+        tapCount=0;
+      },300);
+    }
+
+    if(tapCount===3){
+      clearTimeout(tapTimer);
+      tapCount=0;
+      selectedDay=i;
+      openModal(i);
+    }
+  });
 
   daysContainer.appendChild(div);
 }
 
+// ===== STATUS TOGGLE =====
+function toggleStatus(day,div){
+  let current=localStorage.getItem("status"+day);
+
+  if(!current){
+    div.classList.add("puasa");
+    div.classList.remove("tidak");
+    localStorage.setItem("status"+day,"puasa");
+  }
+  else if(current==="puasa"){
+    div.classList.remove("puasa");
+    div.classList.add("tidak");
+    localStorage.setItem("status"+day,"tidak");
+  }
+  else{
+    div.classList.remove("tidak");
+    localStorage.removeItem("status"+day);
+  }
+}
+
+// ===== MODAL =====
 function openModal(day){
   document.getElementById("modalTitle").innerText="Detail Hari "+day;
-  document.getElementById("notePuasa").value=localStorage.getItem("notePuasa"+day)||"";
-  document.getElementById("noteTarawih").value=localStorage.getItem("noteTarawih"+day)||"";
-  document.getElementById("noteTadarus").value=localStorage.getItem("noteTadarus"+day)||"";
+  document.getElementById("notePuasa").value=
+    localStorage.getItem("notePuasa"+day)||"";
+  document.getElementById("noteIbadah").value=
+    localStorage.getItem("noteIbadah"+day)||"";
   document.getElementById("dayModal").style.display="flex";
 }
 
 function saveDayNote(){
   localStorage.setItem("notePuasa"+selectedDay,
     document.getElementById("notePuasa").value);
-  localStorage.setItem("noteTarawih"+selectedDay,
-    document.getElementById("noteTarawih").value);
-  localStorage.setItem("noteTadarus"+selectedDay,
-    document.getElementById("noteTadarus").value);
+  localStorage.setItem("noteIbadah"+selectedDay,
+    document.getElementById("noteIbadah").value);
   closeModal();
 }
 
 function closeModal(){
   document.getElementById("dayModal").style.display="none";
 }
-
+</script>
 // ====== JADWAL + COUNTDOWN ======
 let maghribTime=null;
 let notified=false;
