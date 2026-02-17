@@ -117,7 +117,6 @@ input{
   </div>
 </div>
 
-<!-- MODAL DETAIL -->
 <div class="modal" id="dayModal">
   <div class="modal-content">
     <h3 id="modalTitle"></h3>
@@ -125,11 +124,8 @@ input{
     <label>📝 Note Puasa</label>
     <textarea id="notePuasa" rows="2"></textarea>
 
-    <label>🕌 Note Tarawih</label>
-    <textarea id="noteTarawih" rows="2"></textarea>
-
-    <label>📖 Note Tadarus</label>
-    <textarea id="noteTadarus" rows="2"></textarea>
+    <label>🌙 Ibadah Malam (Tarawih + Tadarus)</label>
+    <textarea id="noteIbadah" rows="3"></textarea>
 
     <button onclick="saveDayNote()">Simpan</button>
     <button onclick="closeModal()">Tutup</button>
@@ -145,6 +141,7 @@ let countdownInterval=null;
 let maghribTime=null;
 let notified=false;
 
+// ===== GENERATE CALENDAR =====
 for(let i=1;i<=30;i++){
   let div=document.createElement("div");
   div.classList.add("day");
@@ -187,7 +184,7 @@ for(let i=1;i<=30;i++){
   daysContainer.appendChild(div);
 }
 
-// ===== STATUS TOGGLE =====
+// ===== STATUS =====
 function toggleStatus(day,div){
   let current=localStorage.getItem("status"+day);
 
@@ -228,11 +225,8 @@ function saveDayNote(){
 function closeModal(){
   document.getElementById("dayModal").style.display="none";
 }
-</script>
-// ====== JADWAL + COUNTDOWN ======
-let maghribTime=null;
-let notified=false;
 
+// ===== PRAYER TIME =====
 async function getPrayerTimes(){
   let city=document.getElementById("city").value;
   let res=await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=2`);
@@ -247,8 +241,11 @@ async function getPrayerTimes(){
 }
 
 function startCountdown(){
-  setInterval(()=>{
+  if(countdownInterval) clearInterval(countdownInterval);
+
+  countdownInterval=setInterval(()=>{
     if(!maghribTime) return;
+
     let now=new Date();
     let target=new Date();
     let [h,m]=maghribTime.split(":");
