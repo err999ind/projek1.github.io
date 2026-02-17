@@ -1,143 +1,255 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>RUANG CERITA</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramadhan 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: url("https://sebariskata.com/wp-content/uploads/2025/07/Gema-di-Ruang-Hampa_alineaku-600x495.jpeg") no-repeat center/cover;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(3px);
-      font-family: "Poppins", sans-serif;
-      color: white;
-    }
-
-    .container {
-      width: 90%;
-      max-width: 500px;
-      background: rgba(0,0,0,0.35);
-      padding: 25px;
-      border-radius: 15px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.15);
-    }
-
-    textarea {
-      width: 100%;
-      height: 140px;
-      background: rgba(255,255,255,0.1);
-      border: none;
-      padding: 15px;
-      border-radius: 10px;
-      resize: none;
-      color: white;
-      font-size: 14px;
-      outline: none;
-    }
-
-    #submitCerita {
-      margin-top: 15px;
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.2);
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      transition: 0.2s;
-    }
-
-    #submitCerita:hover {
-      background: rgba(255,255,255,0.35);
-    }
-
-    .music-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      padding: 12px 18px;
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 12px;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .music-btn:hover {
-      background: rgba(255,255,255,0.25);
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:white;
+  text-align:center;
+}
+.container{
+  padding:20px;
+  max-width:900px;
+  margin:auto;
+}
+.card{
+  background:rgba(255,255,255,0.08);
+  padding:20px;
+  margin:15px 0;
+  border-radius:15px;
+  backdrop-filter:blur(10px);
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(50px,1fr));
+  gap:8px;
+}
+.day{
+  background:rgba(255,255,255,0.15);
+  padding:12px 5px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.3s;
+}
+.day.puasa{
+  background:linear-gradient(45deg,#FFD700,#FFC107);
+  color:black;
+  font-weight:bold;
+  box-shadow:0 0 12px gold;
+}
+.day.tidak{
+  background:linear-gradient(45deg,#ff4e50,#b71c1c);
+  color:white;
+  font-weight:bold;
+  box-shadow:0 0 12px red;
+}
+.counter{
+  font-size:1.5em;
+  font-weight:bold;
+}
+button{
+  padding:8px 15px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  background:#00c9a7;
+  color:black;
+  font-weight:500;
+  margin:4px;
+}
+input{
+  padding:8px;
+  border-radius:8px;
+  border:none;
+}
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+.modal-content{
+  background:white;
+  color:black;
+  padding:20px;
+  border-radius:12px;
+  width:90%;
+  max-width:400px;
+  text-align:left;
+}
+.modal textarea{
+  width:100%;
+  margin-top:5px;
+  margin-bottom:10px;
+  padding:8px;
+  border-radius:8px;
+}
+</style>
 </head>
-
 <body>
 
-  <div class="container">
-    <h2 style="text-align:center; margin-bottom:10px;">Ruang Cerita</h2>
-    <textarea id="cerita" placeholder="Tulis keluh kesahmu di sini..."></textarea>
-    <button id="submitCerita">Kirim Cerita</button>
+<div class="container">
+  <h1>🌙 Ramadhan 2026</h1>
+
+  <div class="card">
+    <h3>📍 Jadwal Kota</h3>
+    <input type="text" id="city" placeholder="Contoh: Semarang">
+    <button onclick="getPrayerTimes()">Cek</button>
+    <button onclick="enableNotif()">Aktifkan Notifikasi</button>
+    <p id="imsak"></p>
+    <p id="maghrib"></p>
+    <p class="counter" id="countdown"></p>
   </div>
 
-  <!-- 🔊 MUSIK -->
-  <audio id="bgMusic" loop>
-    <source src="https://raw.githubusercontent.com/err999ind/projek1.github.io/e00d7f0ee1fb1449506f35d3863718b96eceaa82/Jiwayangbersedih.mp3.mp3" type="audio/mpeg">
-  </audio>
+  <div class="card">
+    <h3>📅 Kalender Puasa</h3>
+    <div class="grid" id="days"></div>
+  </div>
+</div>
 
-  <!-- Tombol Musik -->
-  <button id="toggleMusic" class="music-btn">🔊 Play Music</button>
+<!-- MODAL DETAIL -->
+<div class="modal" id="dayModal">
+  <div class="modal-content">
+    <h3 id="modalTitle"></h3>
 
-  <script type="module">
+    <label>📝 Note Puasa</label>
+    <textarea id="notePuasa" rows="2"></textarea>
 
-    // ======================
-    // 🔊 TOMBOL MUSIK
-    // ======================
+    <label>🕌 Note Tarawih</label>
+    <textarea id="noteTarawih" rows="2"></textarea>
 
-    const music = document.getElementById("bgMusic");
-    const toggleBtn = document.getElementById("toggleMusic");
-    let isPlaying = false;
+    <label>📖 Note Tadarus</label>
+    <textarea id="noteTadarus" rows="2"></textarea>
 
-    toggleBtn.addEventListener("click", () => {
-      if (isPlaying) {
-        music.pause();
-        toggleBtn.textContent = "🔊 Play Music";
-      } else {
-        music.play();
-        toggleBtn.textContent = "🔇 Pause Music";
+    <button onclick="saveDayNote()">Simpan</button>
+    <button onclick="closeModal()">Tutup</button>
+  </div>
+</div>
+
+<audio id="adzanAudio" src="https://cdn.islamic.network/audio/adhan/adhan.mp3"></audio>
+
+<script>
+// ====== KALENDER 3 MODE ======
+const daysContainer=document.getElementById("days");
+let selectedDay=null;
+
+for(let i=1;i<=30;i++){
+  let div=document.createElement("div");
+  div.classList.add("day");
+  div.innerText=i;
+
+  let status=localStorage.getItem("status"+i);
+  if(status==="puasa") div.classList.add("puasa");
+  if(status==="tidak") div.classList.add("tidak");
+
+  div.onclick=function(){
+    if(!div.classList.contains("puasa") && !div.classList.contains("tidak")){
+      div.classList.add("puasa");
+      localStorage.setItem("status"+i,"puasa");
+    }else if(div.classList.contains("puasa")){
+      div.classList.remove("puasa");
+      div.classList.add("tidak");
+      localStorage.setItem("status"+i,"tidak");
+    }else{
+      div.classList.remove("tidak");
+      localStorage.removeItem("status"+i);
+    }
+  }
+
+  div.ondblclick=function(){
+    selectedDay=i;
+    openModal(i);
+  }
+
+  daysContainer.appendChild(div);
+}
+
+function openModal(day){
+  document.getElementById("modalTitle").innerText="Detail Hari "+day;
+  document.getElementById("notePuasa").value=localStorage.getItem("notePuasa"+day)||"";
+  document.getElementById("noteTarawih").value=localStorage.getItem("noteTarawih"+day)||"";
+  document.getElementById("noteTadarus").value=localStorage.getItem("noteTadarus"+day)||"";
+  document.getElementById("dayModal").style.display="flex";
+}
+
+function saveDayNote(){
+  localStorage.setItem("notePuasa"+selectedDay,
+    document.getElementById("notePuasa").value);
+  localStorage.setItem("noteTarawih"+selectedDay,
+    document.getElementById("noteTarawih").value);
+  localStorage.setItem("noteTadarus"+selectedDay,
+    document.getElementById("noteTadarus").value);
+  closeModal();
+}
+
+function closeModal(){
+  document.getElementById("dayModal").style.display="none";
+}
+
+// ====== JADWAL + COUNTDOWN ======
+let maghribTime=null;
+let notified=false;
+
+async function getPrayerTimes(){
+  let city=document.getElementById("city").value;
+  let res=await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=2`);
+  let data=await res.json();
+  let imsak=data.data.timings.Imsak;
+  maghribTime=data.data.timings.Maghrib;
+
+  document.getElementById("imsak").innerText="Imsak: "+imsak;
+  document.getElementById("maghrib").innerText="Maghrib: "+maghribTime;
+
+  startCountdown();
+}
+
+function startCountdown(){
+  setInterval(()=>{
+    if(!maghribTime) return;
+    let now=new Date();
+    let target=new Date();
+    let [h,m]=maghribTime.split(":");
+    target.setHours(h,m,0);
+
+    if(target<now){
+      target.setDate(target.getDate()+1);
+      notified=false;
+    }
+
+    let diff=target-now;
+    let hrs=Math.floor(diff/1000/60/60);
+    let mins=Math.floor(diff/1000/60%60);
+    let secs=Math.floor(diff/1000%60);
+
+    document.getElementById("countdown").innerText=
+      "⏳ Buka dalam "+hrs+"j "+mins+"m "+secs+"d";
+
+    if(diff<=1000 && !notified){
+      notified=true;
+      if(Notification.permission==="granted"){
+        new Notification("Waktu Berbuka Telah Tiba 🌙");
       }
-      isPlaying = !isPlaying;
-    });
+      document.getElementById("adzanAudio").play();
+    }
+  },1000);
+}
 
-    // ==================================
-    // 📱 iPhone / Android autoplay unlock
-    // ==================================
-
-    const unlockAudio = () => {
-      music.play().catch(()=>{});
-      document.removeEventListener("touchstart", unlockAudio);
-      document.removeEventListener("click", unlockAudio);
-    };
-
-    document.addEventListener("touchstart", unlockAudio);
-    document.addEventListener("click", unlockAudio);
-
-  </script>
-
-  <!-- ======================
-       Firebase Script Lu nanti taruh di bawah sini
-       ====================== -->
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="app.js"></script>
+function enableNotif(){
+  if("Notification" in window){
+    Notification.requestPermission();
+  }
+}
+</script>
 
 </body>
 </html>
