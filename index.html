@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ramadhan 2026</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f2027">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
@@ -14,270 +18,88 @@ body{
   color:white;
   text-align:center;
 }
-.container{
-  padding:20px;
-  max-width:900px;
-  margin:auto;
-}
+.container{ padding:20px; max-width:900px; margin:auto;}
 .card{
   background:rgba(255,255,255,0.08);
-  padding:20px;
-  margin:15px 0;
+  padding:20px; margin:15px 0;
   border-radius:15px;
-  backdrop-filter:blur(10px);
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(50px,1fr));
-  gap:8px;
-}
-.day{
-  background:rgba(255,255,255,0.15);
-  padding:12px 5px;
-  border-radius:10px;
-  cursor:pointer;
-  transition:0.3s;
-}
-.day.puasa{
-  background:linear-gradient(45deg,#FFD700,#FFC107);
-  color:black;
-  font-weight:bold;
-  box-shadow:0 0 12px gold;
-}
-.day.tidak{
-  background:linear-gradient(45deg,#ff4e50,#b71c1c);
-  color:white;
-  font-weight:bold;
-  box-shadow:0 0 12px red;
-}
-.counter{
-  font-size:1.5em;
-  font-weight:bold;
 }
 button{
   padding:8px 15px;
   border:none;
   border-radius:8px;
+  background:#FFD700;
   cursor:pointer;
-  background:#00c9a7;
-  color:black;
-  font-weight:500;
-  margin:4px;
-}
-input{
-  padding:8px;
-  border-radius:8px;
-  border:none;
-}
-.modal{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-.modal-content{
-  background:white;
-  color:black;
-  padding:20px;
-  border-radius:12px;
-  width:90%;
-  max-width:400px;
-  text-align:left;
-}
-.modal textarea{
-  width:100%;
-  margin-top:5px;
-  margin-bottom:10px;
-  padding:8px;
-  border-radius:8px;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>🌙 Ramadhan 2026</h1>
+  <h1>🌙 Ramadhan 2026 PWA</h1>
 
   <div class="card">
-    <h3>📍 Jadwal Kota</h3>
     <input type="text" id="city" placeholder="Contoh: Semarang">
-    <button onclick="getPrayerTimes()">Cek</button>
-    <button onclick="enableNotif()">Aktifkan Notifikasi</button>
-    <p id="imsak"></p>
-    <p id="maghrib"></p>
-    <p class="counter" id="countdown"></p>
-  </div>
-
-  <div class="card">
-    <h3>📅 Kalender Puasa</h3>
-    <div class="grid" id="days"></div>
+    <button onclick="setPrayer()">Set Jadwal</button>
+    <button onclick="requestNotif()">Aktifkan Notif</button>
+    <p id="jadwal"></p>
   </div>
 </div>
-
-<div class="modal" id="dayModal">
-  <div class="modal-content">
-    <h3 id="modalTitle"></h3>
-
-    <label>📝 Note Puasa</label>
-    <textarea id="notePuasa" rows="2"></textarea>
-
-    <label>🌙 Ibadah Malam (Tarawih + Tadarus)</label>
-    <textarea id="noteIbadah" rows="3"></textarea>
-
-    <button onclick="saveDayNote()">Simpan</button>
-    <button onclick="closeModal()">Tutup</button>
-  </div>
-</div>
-
-<audio id="adzanAudio" src="https://cdn.islamic.network/audio/adhan/adhan.mp3"></audio>
 
 <script>
-const daysContainer=document.getElementById("days");
-let selectedDay=null;
-let countdownInterval=null;
+// REGISTER SERVICE WORKER
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+let imsakTime=null;
 let maghribTime=null;
-let notified=false;
 
-// ===== GENERATE CALENDAR =====
-for(let i=1;i<=30;i++){
-  let div=document.createElement("div");
-  div.classList.add("day");
-  div.innerText=i;
-
-  let status=localStorage.getItem("status"+i);
-  if(status==="puasa") div.classList.add("puasa");
-  if(status==="tidak") div.classList.add("tidak");
-
-  let tapCount=0;
-  let tapTimer=null;
-
-  div.addEventListener("click",function(){
-
-    tapCount++;
-
-    if(tapCount===1){
-      tapTimer=setTimeout(()=>{
-        toggleStatus(i,div);
-        tapCount=0;
-      },300);
-    }
-
-    if(tapCount===2){
-      clearTimeout(tapTimer);
-      tapTimer=setTimeout(()=>{
-        toggleStatus(i,div);
-        tapCount=0;
-      },300);
-    }
-
-    if(tapCount===3){
-      clearTimeout(tapTimer);
-      tapCount=0;
-      selectedDay=i;
-      openModal(i);
-    }
-  });
-
-  daysContainer.appendChild(div);
-}
-
-// ===== STATUS =====
-function toggleStatus(day,div){
-  let current=localStorage.getItem("status"+day);
-
-  if(!current){
-    div.classList.add("puasa");
-    div.classList.remove("tidak");
-    localStorage.setItem("status"+day,"puasa");
-  }
-  else if(current==="puasa"){
-    div.classList.remove("puasa");
-    div.classList.add("tidak");
-    localStorage.setItem("status"+day,"tidak");
-  }
-  else{
-    div.classList.remove("tidak");
-    localStorage.removeItem("status"+day);
-  }
-}
-
-// ===== MODAL =====
-function openModal(day){
-  document.getElementById("modalTitle").innerText="Detail Hari "+day;
-  document.getElementById("notePuasa").value=
-    localStorage.getItem("notePuasa"+day)||"";
-  document.getElementById("noteIbadah").value=
-    localStorage.getItem("noteIbadah"+day)||"";
-  document.getElementById("dayModal").style.display="flex";
-}
-
-function saveDayNote(){
-  localStorage.setItem("notePuasa"+selectedDay,
-    document.getElementById("notePuasa").value);
-  localStorage.setItem("noteIbadah"+selectedDay,
-    document.getElementById("noteIbadah").value);
-  closeModal();
-}
-
-function closeModal(){
-  document.getElementById("dayModal").style.display="none";
-}
-
-// ===== PRAYER TIME =====
-async function getPrayerTimes(){
+async function setPrayer(){
   let city=document.getElementById("city").value;
   let res=await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=2`);
   let data=await res.json();
-  let imsak=data.data.timings.Imsak;
+
+  imsakTime=data.data.timings.Imsak;
   maghribTime=data.data.timings.Maghrib;
 
-  document.getElementById("imsak").innerText="Imsak: "+imsak;
-  document.getElementById("maghrib").innerText="Maghrib: "+maghribTime;
+  document.getElementById("jadwal").innerText=
+    "Imsak: "+imsakTime+" | Maghrib: "+maghribTime;
 
-  startCountdown();
+  scheduleNotif();
 }
 
-function startCountdown(){
-  if(countdownInterval) clearInterval(countdownInterval);
-
-  countdownInterval=setInterval(()=>{
-    if(!maghribTime) return;
-
-    let now=new Date();
-    let target=new Date();
-    let [h,m]=maghribTime.split(":");
-    target.setHours(h,m,0);
-
-    if(target<now){
-      target.setDate(target.getDate()+1);
-      notified=false;
-    }
-
-    let diff=target-now;
-    let hrs=Math.floor(diff/1000/60/60);
-    let mins=Math.floor(diff/1000/60%60);
-    let secs=Math.floor(diff/1000%60);
-
-    document.getElementById("countdown").innerText=
-      "⏳ Buka dalam "+hrs+"j "+mins+"m "+secs+"d";
-
-    if(diff<=1000 && !notified){
-      notified=true;
-      if(Notification.permission==="granted"){
-        new Notification("Waktu Berbuka Telah Tiba 🌙");
-      }
-      document.getElementById("adzanAudio").play();
-    }
-  },1000);
+function requestNotif(){
+  Notification.requestPermission();
 }
 
-function enableNotif(){
-  if("Notification" in window){
-    Notification.requestPermission();
-  }
+function scheduleNotif(){
+  if(Notification.permission!=="granted") return;
+
+  let now=new Date();
+
+  let [ih,im]=imsakTime.split(":");
+  let imsakDate=new Date();
+  imsakDate.setHours(ih,im,0);
+
+  let [mh,mm]=maghribTime.split(":");
+  let maghribDate=new Date();
+  maghribDate.setHours(mh,mm,0);
+
+  if(imsakDate<now) imsakDate.setDate(imsakDate.getDate()+1);
+  if(maghribDate<now) maghribDate.setDate(maghribDate.getDate()+1);
+
+  setTimeout(()=>{
+    navigator.serviceWorker.ready.then(reg=>{
+      reg.showNotification("Waktu Imsak 🌙");
+    });
+  }, imsakDate-now);
+
+  setTimeout(()=>{
+    navigator.serviceWorker.ready.then(reg=>{
+      reg.showNotification("Waktu Berbuka 🌙");
+    });
+  }, maghribDate-now);
 }
 </script>
 
